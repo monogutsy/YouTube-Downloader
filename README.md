@@ -2,6 +2,14 @@
 
 A Windows desktop app for saving video and audio you have permission to download. It runs locally and connects to the source site to analyze and retrieve media. Use Windows 10 64-bit with Python 3.14 for development. The built app includes Python and opens from File Explorer.
 
+## Install on Windows
+
+1. Run **YouTube-Downloader-Setup.exe** from a GitHub release or a local installer build.
+2. Keep your internet connection on during setup. The setup file is about 26 MiB and includes Python. Setup downloads and verifies about 76 MiB of media tools and installs them with the app.
+3. Open **YouTube Downloader** from the Start menu. Setup also offers a desktop shortcut.
+
+Setup installs for the current Windows user. Use **Settings → Apps** to uninstall it. App settings and download history remain in `%LOCALAPPDATA%\YouTubeDownloader`.
+
 ## Set up in Command Prompt
 
 1. Open **Command Prompt** and check your Python version and architecture.
@@ -82,6 +90,16 @@ Public links can still fail if the source requires a private account, declines a
 
 ## Build the Windows executable
 
+To build a single **Setup EXE** for others, install Inno Setup 6.7.4 and run this from CMD after setting up the project environment. [Inno Setup 6.7.4 download](https://github.com/jrsoftware/issrc/releases/tag/is-6_7_4)
+
+```cmd
+build_installer.bat
+```
+
+The script stages the application, collects third-party notices, and creates `dist\installer\YouTube-Downloader-Setup.exe`. If the compiler is in a custom location, set `INNO_SETUP_ISCC` to the full path to `ISCC.exe` before running the script. Attach the setup file to a GitHub Release. The setup file is unsigned. [GitHub Releases guide](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases)
+
+### Build a portable folder
+
 1. Close any running packaged copies. From the project folder, run the Windows build script in CMD. The script uses `.venv` directly.
 
    ```cmd
@@ -116,6 +134,7 @@ Bundling these tools adds their full size to the application folder. Before dist
 
 ## Verification on Windows 10
 
+- An isolated install downloaded and verified the vendor archives. The installed app opened with Python and the three media tools off PATH, detected the app-local tools, and the installed FFmpeg and FFprobe passed a Vorbis conversion check. A separate clean uninstall removed the test installation.
 - Python 3.14.6 x64 installed the requirements and passed `python -m pip check`.
 - The app analyzed Blender's Creative Commons YouTube upload, including its title, uploader, duration, and thumbnail. The live tests saved a merged 360p MP4 and a 192 kbps MP3. FFprobe verified the output streams, and FFmpeg decoded both formats. An audio request returned HTTP 403 and succeeded on a later attempt. [Blender's YouTube upload](https://www.youtube.com/watch?v=YE7VzlLtp-4)
 - The windowed EXE opened from outside the project with Python off PATH and the project's virtual environment temporarily unavailable. The packaged app detected installed FFmpeg, FFprobe, and Deno. It also opened and reported them missing when they were removed from its launch PATH.
@@ -138,3 +157,7 @@ python -m unittest discover -s tests
 | A format is unavailable | Try a different container or resolution cap. WebM, MOV, and MP4 each accept a limited set of video and audio codecs. |
 | The job cannot save or convert the file | Choose a folder you can write to, check free disk space, then retry. Downloads and conversions can need room for source streams and the final file at the same time. |
 | The packaged window does not open | Confirm `_internal` is still beside the EXE. Try the console build and check diagnostics in `%LOCALAPPDATA%\YouTubeDownloader`. |
+
+## License
+
+YouTube Downloader is available under the [MIT License](LICENSE). Third-party components retain their respective licenses. The installer includes their notices in the `licenses` folder.

@@ -4,6 +4,7 @@ setlocal EnableExtensions DisableDelayedExpansion
 set "APP_NAME=YouTube Downloader"
 set "WINDOW_MODE=--windowed"
 set "BUNDLE_TOOLS="
+set "APP_DIST=dist"
 
 :parse_arguments
 if "%~1"=="" goto arguments_done
@@ -19,14 +20,20 @@ if /I "%~1"=="--bundle" (
     shift
     goto parse_arguments
 )
+if /I "%~1"=="--installer-payload" (
+    set "APP_DIST=build\installer-payload"
+    shift
+    goto parse_arguments
+)
 echo Unknown option: "%~1"
-echo Usage: build_windows.bat [--console] [--bundle]
+echo Usage: build_windows.bat [--console] [--bundle] [--installer-payload]
 exit /b 2
 
 :help
-echo Usage: build_windows.bat [--console] [--bundle]
+echo Usage: build_windows.bat [--console] [--bundle] [--installer-payload]
 echo --console  Build the debug app with a visible console.
 echo --bundle   Include the distribution-ready tools from the project bin folder.
+echo --installer-payload  Stage the app for build_installer.bat.
 exit /b 0
 
 :arguments_done
@@ -54,13 +61,17 @@ if defined BUNDLE_TOOLS (
 
 "%BUILD_PYTHON%" -m PyInstaller ^
     --noconfirm --clean --noupx --onedir %WINDOW_MODE% ^
-    --name "%APP_NAME%" --specpath build ^
+    --name "%APP_NAME%" --specpath build --distpath "%APP_DIST%" ^
+    --exclude-module mutagen ^
     --collect-data customtkinter --collect-all yt_dlp_ejs --copy-metadata yt-dlp ^
     %BUILD_ICON% "%CD%\main.py"
 if errorlevel 1 goto failed
 
+copy /Y "LICENSE" "%APP_DIST%\%APP_NAME%\LICENSE" >nul
+if errorlevel 1 goto failed
+
 if defined BUNDLE_TOOLS (
-    xcopy "bin\*" "dist\%APP_NAME%\bin\" /E /I /Y /Q >nul
+    xcopy "bin\*" "%APP_DIST%\%APP_NAME%\bin\" /E /I /Y /Q >nul
     if errorlevel 1 (
         echo Could not copy the bundled tools into dist.
         goto failed
@@ -70,7 +81,7 @@ if defined BUNDLE_TOOLS (
     echo The app uses FFmpeg, FFprobe and Deno installed on the target computer.
 )
 
-echo Built "%CD%\dist\%APP_NAME%\%APP_NAME%.exe"
+echo Built "%CD%\%APP_DIST%\%APP_NAME%\%APP_NAME%.exe"
 popd
 exit /b 0
 
