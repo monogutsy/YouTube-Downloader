@@ -1,0 +1,24 @@
+customtkinter==6.0.0
+Pillow==13.0.0
+yt-dlp[default]==2026.10.26
+
+# Windows packaging tools
+PyInstaller==6.22.3
+pyinstaller-hooks-contrib==2026.10
+
+# Resolved dependencies for the Windows x64 Python 3.14 build
+altgraph==0.17.5
+brotli==1.2.1
+certifi==2026.11.20
+charset-normalizer==3.5.3
+darkdetect==0.8.0
+idna==3.20
+mutagen==1.48.1
+packaging==26.3
+pefile==2024.8.26
+pycryptodomex==3.24.2
+pywin32-ctypes==0.2.3
+requests==2.34.2
+setuptools==84.2.1
+urllib3==2.8.0
+websockets==17.4
