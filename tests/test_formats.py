@@ -2,6 +2,8 @@ from unittest import TestCase
 
 from app.formats import (
     BEST_ORIGINAL,
+    OGG_OPUS,
+    OGG_VORBIS,
     DownloadOptions,
     FormatError,
     discover_formats,
@@ -60,6 +62,16 @@ class FormatTests(TestCase):
         self.assertIsNone(plan.extension)
         with self.assertRaisesRegex(FormatError, "encoding target"):
             download_plan(DownloadOptions("audio", "MP3", "999"))
+
+    def test_ogg_options_require_the_matching_encoder(self):
+        for encoder, option in (("libopus", OGG_OPUS), ("libvorbis", OGG_VORBIS)):
+            with self.subTest(encoder=encoder):
+                availability = discover_formats(self.context, audio_encoders={encoder})
+                self.assertEqual(availability.audio, (BEST_ORIGINAL, option))
+                options = DownloadOptions("audio", option, "192")
+                self.assertEqual(download_plan(options).extension, "ogg")
+                self.assertIn("192 kbps encoding target", selection_note(self.context, options))
+        self.assertEqual(download_plan(DownloadOptions("audio", "OGG", "192")).extension, "ogg")
 
     def test_combined_stream_can_be_remuxed_without_a_merge(self):
         context = {"formats": [stream("combined", "mp4", "avc1", "aac", height=480)]}

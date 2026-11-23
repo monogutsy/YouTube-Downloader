@@ -13,9 +13,11 @@ from yt_dlp.utils import MEDIA_EXTENSIONS, PostProcessingError
 
 VIDEO_FORMATS = ("MP4", "MKV", "WebM", "MOV")
 BEST_ORIGINAL = "Best original audio"
-AUDIO_FORMATS = (BEST_ORIGINAL, "MP3", "WAV", "FLAC", "OGG", "M4A")
+OGG_OPUS = "OGG (Opus)"
+OGG_VORBIS = "OGG (Vorbis)"
+AUDIO_FORMATS = (BEST_ORIGINAL, "MP3", "WAV", "FLAC", OGG_OPUS, OGG_VORBIS, "M4A")
 BITRATES = ("128", "192", "256", "320")
-LOSSY_AUDIO_FORMATS = frozenset(("MP3", "OGG", "M4A"))
+LOSSY_AUDIO_FORMATS = frozenset(("MP3", "OGG", OGG_OPUS, OGG_VORBIS, "M4A"))
 
 BEST_RESOLUTION = "Best available"
 _RESOLUTION_CAPS = {
@@ -65,9 +67,11 @@ _AUDIO_ENCODINGS = {
     "MP3": ("libmp3lame", "mp3", "mp3"),
     "WAV": ("pcm_s24le", "wav", "wav"),
     "FLAC": ("flac", "flac", "flac"),
-    "OGG": ("libopus", "ogg", "ogg"),
+    OGG_OPUS: ("libopus", "ogg", "ogg"),
+    OGG_VORBIS: ("libvorbis", "ogg", "ogg"),
     "M4A": ("aac", "ipod", "m4a"),
 }
+_AUDIO_ENCODINGS["OGG"] = _AUDIO_ENCODINGS[OGG_OPUS]
 AUDIO_ENCODERS = frozenset(encoder for encoder, _, _ in _AUDIO_ENCODINGS.values())
 
 _Stream = Mapping[str, Any]
@@ -271,7 +275,7 @@ def _validated_quality(options: DownloadOptions) -> tuple[int | None, str | None
         if quality in _RESOLUTION_CAPS:
             return _RESOLUTION_CAPS[quality], None
         raise FormatError("Choose one of the available resolution presets.")
-    if options.kind == "audio" and options.output_format in AUDIO_FORMATS:
+    if options.kind == "audio" and (options.output_format == BEST_ORIGINAL or options.output_format in _AUDIO_ENCODINGS):
         if options.output_format not in LOSSY_AUDIO_FORMATS:
             return None, None
         bitrate = "192" if options.quality is None else str(options.quality)
@@ -387,9 +391,10 @@ class EncodeAudioPP(FFmpegPostProcessor):
         arguments = ["-map", "0:a:0", "-vn", "-c:a", codec, "-f", muxer]
         if self.bitrate:
             arguments.extend(("-b:a", f"{self.bitrate}k"))
-        if self.output_format in ("MP3", "M4A"):
+        if self.output_format in ("MP3", "M4A", OGG_VORBIS):
             arguments.extend(("-ar", "48000"))
-        if self.output_format == "MP3" or self.bitrate == "320":
+        # Stereo at 48 kHz supports all offered Vorbis bitrates.
+        if self.output_format in ("MP3", OGG_VORBIS) or self.bitrate == "320":
             arguments.extend(("-ac", "2"))
 
         try:
