@@ -1,16 +1,22 @@
 # YouTube Downloader
 
-A Windows desktop app for saving video and audio you have permission to download. It runs locally and connects to the source site to analyze and retrieve media. Use Windows 10 64-bit with Python 3.14 for development. The built app includes Python and opens from File Explorer.
+A Windows desktop app for saving video and audio you have permission to download.
 
 ## Install on Windows
 
-1. Run **YouTube-Downloader-Setup.exe** from a GitHub release or a local installer build.
-2. Keep your internet connection on during setup. The setup file is about 26 MiB and includes Python. Setup downloads and verifies about 76 MiB of media tools and installs them with the app.
-3. Open **YouTube Downloader** from the Start menu. Setup also offers a desktop shortcut.
+**[Download YouTube-Downloader-Setup.exe](https://github.com/monogutsy/YouTube-Downloader/releases/download/v1.2.0/YouTube-Downloader-Setup.exe)** · [View the GitHub release](https://github.com/monogutsy/YouTube-Downloader/releases/tag/v1.2.0)
+
+The installer is about 26 MiB and is intended for 64-bit Windows 10 or later. Python is included.
+
+1. Open `YouTube-Downloader-Setup.exe` from your Downloads folder and follow the setup wizard.
+2. Stay connected to the internet while Setup downloads and verifies FFmpeg, FFprobe, and Deno. These tools add about 76 MiB to the download.
+3. When Setup finishes, open **YouTube Downloader** from the Start menu. Setup also offers a desktop shortcut.
+
+To get started, paste a link, click **Analyze**, choose your format and save folder, then click **Download**. [See the full usage guide](#use-the-app).
 
 Setup installs for the current Windows user. Use **Settings → Apps** to uninstall it. App settings and download history remain in `%LOCALAPPDATA%\YouTubeDownloader`.
 
-## Set up in Command Prompt
+## Development setup
 
 1. Open **Command Prompt** and check your Python version and architecture.
 
