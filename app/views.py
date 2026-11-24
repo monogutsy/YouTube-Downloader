@@ -251,8 +251,9 @@ class MainView:
                         self.preview_image = ctk.CTkImage(light_image=picture, size=(168, 94))
             except (OSError, ValueError, Image.DecompressionBombError):
                 pass
+        # An empty image name clears the Tk image when the previous thumbnail is released.
         self.thumbnail.configure(
-            image=self.preview_image, text="" if self.preview_image else ("No thumbnail" if title else "Preview")
+            image=self.preview_image or "", text="" if self.preview_image else ("No thumbnail" if title else "Preview")
         )
 
     def update_progress(self, phase, percent=None, *, metrics="", detail="", busy=False, bad=False, completed=False):
